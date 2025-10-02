@@ -18,33 +18,39 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # Step 3: Setup kind cluster (must come before Terraform)
+      # Step 3: Setup KinD cluster
       - name: Setup kind cluster
-        uses: engineerd/setup-kind@v0.15.0
+        uses: engineerd/setup-kind@v0.6.2
         with:
-          kind-version: "v0.20.0"
+          kind-version: "v0.24.0"
           wait-ready: true
 
-      # Step 4: Export kubeconfig from kind
+      # Step 4: Export kubeconfig
       - name: Export KUBECONFIG
         run: |
           mkdir -p $HOME/.kube
           kind get kubeconfig > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      # Step 5: Terraform Init
+      # Step 5: Validate cluster access (optional but recommended)
+      - name: Validate cluster
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+
+      # Step 6: Terraform Init
       - name: Terraform Init
         run: terraform init
 
-      # Step 6: Terraform Validate
+      # Step 7: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # Step 7: Terraform Plan
+      # Step 8: Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
-      # Step 8: Terraform Apply (only on main branch)
+      # Step 9: Terraform Apply (only on main branch)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
