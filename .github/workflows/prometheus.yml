@@ -20,7 +20,7 @@ jobs:
           mkdir -p $HOME/.kube
           echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
       - name: Setup kind cluster
-        uses: engineerd/setup-kind@v0.15.0
+        uses: engineerd/setup-kind@v0.5.0
         with:
           kind-version: "v0.20.0"
           wait-ready: true
