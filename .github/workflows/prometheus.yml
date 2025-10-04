@@ -20,12 +20,7 @@ jobs:
 
   
 
-      # Step 4: Export kubeconfig
-      - name: Export KUBECONFIG
-        run: |
-          mkdir -p $HOME/.kube
-          kind get kubeconfig > $HOME/.kube/config
-          chmod 600 $HOME/.kube/config
+
 
      
       # Step 7: Terraform Validate
