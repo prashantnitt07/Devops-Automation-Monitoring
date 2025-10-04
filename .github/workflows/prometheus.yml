@@ -18,6 +18,16 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
+# 1. Start a KinD cluster
+      - name: Setup KinD
+        uses: engineerd/setup-kind@v0.14.0
+        with:
+          kind-version: "v0.20.0"
+
+# 2. Export KUBECONFIG
+      - name: Export KUBECONFIG
+        run: kind get kubeconfig > $HOME/.kube/config
+
   # Step 2: init Terraform
       - name: Terraform Init
         run: terraform init
