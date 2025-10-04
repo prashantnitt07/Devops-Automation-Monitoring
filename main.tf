@@ -40,4 +40,7 @@ resource "kubectl_manifest" "prometheus_deployment" {
     kubectl_manifest.prometheus_config,
     kubectl_manifest.prometheus_service
   ]
+ replace_triggered_by = [
+    file("${path.module}/manifests/prometheus-config.yaml")
+  ]
 }
