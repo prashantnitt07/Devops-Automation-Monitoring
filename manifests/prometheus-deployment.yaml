@@ -14,6 +14,8 @@ spec:
     metadata:
       labels:
         app: prometheus-server
+      annotations:
+        configHash: "${config_hash}"
     spec:
       containers:
         - name: prometheus
