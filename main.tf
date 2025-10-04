@@ -21,9 +21,14 @@ metadata:
 YAML
 }
 
+# Apply Prometheus cluster-role YAML
+resource "kubectl_manifest" "prometheus_cluster_role" {
+  yaml_body = file("${path.module}/manifests/prometheus-cluster-role.yaml")
+  depends_on = [kubectl_manifest.monitoring_namespace]
+}
 # Apply Prometheus ConfigMap YAML
 resource "kubectl_manifest" "prometheus_config" {
-  yaml_body = file("${path.module}/manifests/prometheus-config.yaml")
+  yaml_body = file("${path.module}/manifests/prometheus-config-map.yaml")
   depends_on = [kubectl_manifest.monitoring_namespace]
 }
 
@@ -34,7 +39,7 @@ resource "kubectl_manifest" "prometheus_service" {
 }
 
 locals {
-  prometheus_config_hash     = filesha256("${path.module}/manifests/prometheus-config.yaml")
+  prometheus_config_hash     = filesha256("${path.module}/manifests/prometheus-config-map.yaml")
   prometheus_service_hash    = filesha256("${path.module}/manifests/prometheus-service.yaml")
   prometheus_deployment_hash = filesha256("${path.module}/manifests/prometheus-deployment.yaml")
   
@@ -55,31 +60,34 @@ resource "kubectl_manifest" "prometheus_deployment" {
 }
 
 
+
+
+
 # Deploy Node Exporter DaemonSet + Service
-resource "kubectl_manifest" "node_exporter" {
-  yaml_body = file("${path.module}/manifests/node-exporter.yaml")
-  depends_on = [kubectl_manifest.monitoring_namespace]
-}
+#resource "kubectl_manifest" "node_exporter" {
+ # yaml_body = file("${path.module}/manifests/node-exporter.yaml")
+  #depends_on = [kubectl_manifest.monitoring_namespace]
+#}
 
 # Deploy Node Exporter DaemonSet - Service
 
 
-resource "kubectl_manifest" "node-exporter-service" {
-  yaml_body = file("${path.module}/manifests/node-exporter-service.yaml")
-  depends_on = [kubectl_manifest.monitoring_namespace]
-}
+#resource "kubectl_manifest" "node-exporter-service" {
+ # yaml_body = file("${path.module}/manifests/node-exporter-service.yaml")
+  #depends_on = [kubectl_manifest.monitoring_namespace]
+#}
 
 # (Optional) Use SHA hash to force reapply if manifest changes
-locals {
-  node_exporter_hash = filesha256("${path.module}/manifests/node-exporter.yaml")
-}
+#locals {
+ # node_exporter_hash = filesha256("${path.module}/manifests/node-exporter.yaml")
+#}
 
-resource "null_resource" "trigger_node_exporter_restart" {
-  triggers = {
-    config_hash = local.node_exporter_hash
-  }
+#resource "null_resource" "trigger_node_exporter_restart" {
+ # triggers = {
+  #  config_hash = local.node_exporter_hash
+  #}
 
-  provisioner "local-exec" {
-    command = "kubectl rollout restart daemonset/node-exporter -n monitoring || true"
-  }
-}
+  #provisioner "local-exec" {
+   # command = "kubectl rollout restart daemonset/node-exporter -n monitoring || true"
+  #}
+#}
