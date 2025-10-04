@@ -36,6 +36,12 @@ resource "kubectl_manifest" "prometheus_service" {
 locals {
   prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-config.yaml")
 }
+locals {
+  prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-service.yaml")
+}
+locals {
+  prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-deployment.yaml")
+}
 
 resource "kubectl_manifest" "prometheus_deployment" {
   yaml_body = templatefile("${path.module}/manifests/prometheus-deployment.yaml", {
