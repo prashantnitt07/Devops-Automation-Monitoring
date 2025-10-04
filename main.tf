@@ -38,10 +38,8 @@ locals {
   prometheus_service_hash    = filesha256("${path.module}/manifests/prometheus-service.yaml")
   prometheus_deployment_hash = filesha256("${path.module}/manifests/prometheus-deployment.yaml")
 
-  # Combine all hashes into one to trigger deployment updates
-  prometheus_full_hash = sha256(local.prometheus_config_hash 
-                                 + local.prometheus_service_hash 
-                                 + local.prometheus_deployment_hash)
+  # Combine all hashes into one string before hashing again
+  prometheus_full_hash = sha256("${local.prometheus_config_hash}${local.prometheus_service_hash}${local.prometheus_deployment_hash}")
 }
 
 resource "kubectl_manifest" "prometheus_deployment" {
