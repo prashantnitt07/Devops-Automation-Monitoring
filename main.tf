@@ -11,7 +11,7 @@ provider "kubectl" {
   config_path = "~/.kube/config"
 }
 
-# Create monitoring namespace
+#1. Create monitoring namespace
 resource "kubectl_manifest" "monitoring_namespace" {
   yaml_body = <<YAML
 apiVersion: v1
@@ -21,18 +21,25 @@ metadata:
 YAML
 }
 
-# Apply Prometheus cluster-role YAML
+#2. Apply Prometheus cluster-role YAML
 resource "kubectl_manifest" "prometheus_cluster_role" {
   yaml_body = file("${path.module}/manifests/prometheus-cluster-role.yaml")
   depends_on = [kubectl_manifest.monitoring_namespace]
 }
-# Apply Prometheus ConfigMap YAML
+
+#3. Apply Prometheus cluster-role-binding YAML
+resource "kubectl_manifest" "prometheus_cluster_role_binding" {
+  yaml_body = file("${path.module}/manifests/prometheus-clusterrole-binding.yaml")
+  depends_on = [kubectl_manifest.monitoring_namespace]
+}
+
+#4. Apply Prometheus ConfigMap YAML
 resource "kubectl_manifest" "prometheus_config" {
   yaml_body = file("${path.module}/manifests/prometheus-config-map.yaml")
   depends_on = [kubectl_manifest.monitoring_namespace]
 }
 
-# Apply Prometheus Service YAML
+#5.  Apply Prometheus Service YAML
 resource "kubectl_manifest" "prometheus_service" {
   yaml_body = file("${path.module}/manifests/prometheus-service.yaml")
   depends_on = [kubectl_manifest.monitoring_namespace]
@@ -48,6 +55,7 @@ locals {
   prometheus_full_hash = sha256("${local.prometheus_config_hash}${local.prometheus_service_hash}${local.prometheus_deployment_hash}")
 }
 
+#6.  Apply Prometheus Deployment YAML
 resource "kubectl_manifest" "prometheus_deployment" {
   yaml_body = templatefile("${path.module}/manifests/prometheus-deployment.yaml", {
     config_hash = local.prometheus_full_hash
