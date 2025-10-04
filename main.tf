@@ -34,19 +34,21 @@ resource "kubectl_manifest" "prometheus_service" {
 }
 
 locals {
-  prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-config.yaml")
-}
-locals {
-  prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-service.yaml")
-}
-locals {
-  prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-deployment.yaml")
+  prometheus_config_hash     = filesha256("${path.module}/manifests/prometheus-config.yaml")
+  prometheus_service_hash    = filesha256("${path.module}/manifests/prometheus-service.yaml")
+  prometheus_deployment_hash = filesha256("${path.module}/manifests/prometheus-deployment.yaml")
+
+  # Combine all hashes into one to trigger deployment updates
+  prometheus_full_hash = sha256(local.prometheus_config_hash 
+                                 + local.prometheus_service_hash 
+                                 + local.prometheus_deployment_hash)
 }
 
 resource "kubectl_manifest" "prometheus_deployment" {
   yaml_body = templatefile("${path.module}/manifests/prometheus-deployment.yaml", {
-    config_hash = local.prometheus_config_hash
+    config_hash = local.prometheus_full_hash
   })
+
   depends_on = [
     kubectl_manifest.prometheus_config,
     kubectl_manifest.prometheus_service
