@@ -15,4 +15,4 @@ data:
 
       - job_name: "node_exporter"
         static_configs:
-          - targets: ["node-exporter.monitoring.svc.cluster.local:9101"]
+          - targets: ["node-exporter.monitoring.svc.cluster.local:91022"]
