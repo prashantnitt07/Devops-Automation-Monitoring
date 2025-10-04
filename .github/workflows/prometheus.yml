@@ -18,12 +18,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # Step 3: Setup KinD cluster
-      - name: Setup kind cluster
-        uses: engineerd/setup-kind@v0.6.2
-        with:
-          kind-version: "v0.24.0"
-          wait-ready: true
+  
 
       # Step 4: Export kubeconfig
       - name: Export KUBECONFIG
