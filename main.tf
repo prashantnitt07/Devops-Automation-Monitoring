@@ -33,14 +33,16 @@ resource "kubectl_manifest" "prometheus_service" {
   depends_on = [kubectl_manifest.monitoring_namespace]
 }
 
-# Apply Prometheus Deployment YAML
+locals {
+  prometheus_config_hash = filesha256("${path.module}/manifests/prometheus-config.yaml")
+}
+
 resource "kubectl_manifest" "prometheus_deployment" {
-  yaml_body = file("${path.module}/manifests/prometheus-deployment.yaml")
+  yaml_body = templatefile("${path.module}/manifests/prometheus-deployment.yaml", {
+    config_hash = local.prometheus_config_hash
+  })
   depends_on = [
     kubectl_manifest.prometheus_config,
     kubectl_manifest.prometheus_service
-  ]
- replace_triggered_by = [
-    file("${path.module}/manifests/prometheus-config.yaml")
   ]
 }
