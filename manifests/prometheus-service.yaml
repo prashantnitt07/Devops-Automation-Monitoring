@@ -8,6 +8,7 @@ spec:
     app: prometheus
   ports:
     - name: web
-      port: 9090
-      targetPort: 9090
+      port: 9090              # Service port (inside cluster)
+      targetPort: 9090        # Pod container port
+      nodePort: 30914         # Fixed NodePort on the node
   type: NodePort
