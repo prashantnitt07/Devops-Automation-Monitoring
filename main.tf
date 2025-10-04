@@ -24,23 +24,56 @@ resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"
   }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels
+    ]
+  }
 }
-
-
 
 # Apply Prometheus ConfigMap YAML
 resource "kubectl_manifest" "prometheus_config" {
   yaml_body = file("${path.module}/manifests/prometheus-config.yaml")
-}
 
+  depends_on = [kubernetes_namespace.monitoring]
 
-# Apply Prometheus Deployment YAML
-resource "kubectl_manifest" "prometheus" {
-  yaml_body = file("${path.module}/manifests/prometheus-deployment.yaml")
-  depends_on = [kubectl_manifest.prometheus_config, kubectl_manifest.prometheus_service]
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels
+    ]
+  }
 }
 
 # Apply Prometheus Service YAML
 resource "kubectl_manifest" "prometheus_service" {
   yaml_body = file("${path.module}/manifests/prometheus-service.yaml")
+
+  depends_on = [kubernetes_namespace.monitoring, kubectl_manifest.prometheus_config]
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels
+    ]
+  }
+}
+
+# Apply Prometheus Deployment YAML
+resource "kubectl_manifest" "prometheus" {
+  yaml_body = file("${path.module}/manifests/prometheus-deployment.yaml")
+
+  depends_on = [
+    kubectl_manifest.prometheus_config,
+    kubectl_manifest.prometheus_service
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels
+    ]
+  }
 }
