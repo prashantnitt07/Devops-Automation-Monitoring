@@ -26,7 +26,21 @@ resource "kubernetes_namespace" "monitoring" {
   }
 }
 
-# Apply Prometheus YAML manifest
+
+
+# Apply Prometheus ConfigMap YAML
+resource "kubectl_manifest" "prometheus_config" {
+  yaml_body = file("${path.module}/manifests/prometheus-config.yaml")
+}
+
+
+# Apply Prometheus Deployment YAML
 resource "kubectl_manifest" "prometheus" {
   yaml_body = file("${path.module}/manifests/prometheus-deployment.yaml")
+  depends_on = [kubectl_manifest.prometheus_config, kubectl_manifest.prometheus_service]
+}
+
+# Apply Prometheus Service YAML
+resource "kubectl_manifest" "prometheus_service" {
+  yaml_body = file("${path.module}/manifests/prometheus-service.yaml")
 }
