@@ -10,41 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Step 2: Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-# 1. Start a KinD cluster
       - name: Setup KinD
         uses: engineerd/setup-kind@v0.6.2
         with:
           kind-version: "v0.24.0"
 
-# 2. Export KUBECONFIG
       - name: Export KUBECONFIG
         run: kind get kubeconfig > $HOME/.kube/config
 
-  # Step 2: init Terraform
       - name: Terraform Init
         run: terraform init
 
-
-     
-      # Step 7: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
 
-      # Step 8: Terraform Plan
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
-      # Step 9: Terraform Apply (only on main branch)
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          KUBECONFIG: $HOME/.kube/config
