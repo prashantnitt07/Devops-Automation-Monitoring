@@ -64,7 +64,7 @@ resource "kubectl_manifest" "node_exporter" {
 # Deploy Node Exporter DaemonSet - Service
 
 
-resource "kubectl_manifest" "node_exporter" {
+resource "kubectl_manifest" "node-exporter-service" {
   yaml_body = file("${path.module}/manifests/node-exporter-service.yaml")
   depends_on = [kubectl_manifest.monitoring_namespace]
 }
