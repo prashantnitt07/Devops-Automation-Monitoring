@@ -5,7 +5,7 @@ metadata:
   namespace: monitoring
 spec:
   selector:
-    app: prometheus
+    app: prometheus-server
   ports:
     - name: web
       port: 9090              # Service port (inside cluster)
