@@ -32,16 +32,7 @@ jobs:
           kind get kubeconfig > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
-      # Step 5: Validate cluster access (optional but recommended)
-      - name: Validate cluster
-        run: |
-          kubectl cluster-info
-          kubectl get nodes
-
-      # Step 6: Terraform Init
-      - name: Terraform Init
-        run: terraform init
-
+     
       # Step 7: Terraform Validate
       - name: Terraform Validate
         run: terraform validate
@@ -54,3 +45,5 @@ jobs:
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         run: terraform apply -auto-approve tfplan
+        env:
+          KUBECONFIG: ${{ secrets.KUBECONFIG }}
