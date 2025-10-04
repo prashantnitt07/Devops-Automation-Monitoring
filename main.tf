@@ -37,6 +37,7 @@ locals {
   prometheus_config_hash     = filesha256("${path.module}/manifests/prometheus-config.yaml")
   prometheus_service_hash    = filesha256("${path.module}/manifests/prometheus-service.yaml")
   prometheus_deployment_hash = filesha256("${path.module}/manifests/prometheus-deployment.yaml")
+  
 
   # Combine all hashes into one string before hashing again
   prometheus_full_hash = sha256("${local.prometheus_config_hash}${local.prometheus_service_hash}${local.prometheus_deployment_hash}")
@@ -51,4 +52,34 @@ resource "kubectl_manifest" "prometheus_deployment" {
     kubectl_manifest.prometheus_config,
     kubectl_manifest.prometheus_service
   ]
+}
+
+
+# Deploy Node Exporter DaemonSet + Service
+resource "kubectl_manifest" "node_exporter" {
+  yaml_body = file("${path.module}/manifests/node-exporter.yaml")
+  depends_on = [kubectl_manifest.monitoring_namespace]
+}
+
+# Deploy Node Exporter DaemonSet - Service
+
+
+resource "kubectl_manifest" "node_exporter" {
+  yaml_body = file("${path.module}/manifests/node-exporter-service.yaml")
+  depends_on = [kubectl_manifest.monitoring_namespace]
+}
+
+# (Optional) Use SHA hash to force reapply if manifest changes
+locals {
+  node_exporter_hash = filesha256("${path.module}/manifests/node-exporter.yaml")
+}
+
+resource "null_resource" "trigger_node_exporter_restart" {
+  triggers = {
+    config_hash = local.node_exporter_hash
+  }
+
+  provisioner "local-exec" {
+    command = "kubectl rollout restart daemonset/node-exporter -n monitoring || true"
+  }
 }
