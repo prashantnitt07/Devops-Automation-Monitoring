@@ -19,12 +19,14 @@ provider "kubectl" {
   config_path = "~/.kube/config"
 }
 
+# Create monitoring namespace
 resource "kubernetes_namespace" "monitoring" {
   metadata {
     name = "monitoring"
   }
 }
 
+# Apply Prometheus YAML manifest
 resource "kubectl_manifest" "prometheus" {
   yaml_body = file("${path.module}/manifests/prometheus-deployment.yaml")
 }
