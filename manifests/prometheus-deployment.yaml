@@ -12,6 +12,8 @@ spec:
     metadata:
       labels:
         app: prometheus
+      annotations:
+        configHash: "${config_hash}"   
     spec:
       containers:
         - name: prometheus
@@ -33,5 +35,3 @@ spec:
             name: prometheus-config
         - name: storage
           emptyDir: {}
-
-
